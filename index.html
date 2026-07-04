@@ -189,7 +189,7 @@
       const [editChildApps, setEditChildApps] = useState([]);
       const [deletedChildApps, setDeletedChildApps] = useState([]);
       
-      const [newApp, setNewApp] = useState({ name: '', type: 'app', url: '', parentId: null, price: '' });
+      const [newApp, setNewApp] = useState({ name: '', type: 'app', url: '', parentId: null, price: '', isPro: false });
       const [editingApp, setEditingApp] = useState(null);
 
       // Rekap Pembayaran State
@@ -328,7 +328,7 @@
 
           await fetchFreshData();
           setNotification({ type: 'success', message: 'Berhasil disimpan' });
-          setNewApp({ name: '', type: 'app', url: '', parentId: null, price: '' });
+          setNewApp({ name: '', type: 'app', url: '', parentId: null, price: '', isPro: false });
           setChildApps([]); 
         } catch (error) {
           setNotification({ type: 'error', message: 'Gagal menyimpan data' });
@@ -492,7 +492,7 @@
       const closeAddModal = () => {
         setShowAddModal(false);
         setChildApps([]);
-        setNewApp({ name: '', type: 'app', url: '', parentId: null, price: '' });
+        setNewApp({ name: '', type: 'app', url: '', parentId: null, price: '', isPro: false });
       };
 
       const closeEditModal = () => {
@@ -752,6 +752,7 @@
                 </div>
               )}
 
+              {}
               {/* Area Grid Direktori & Aplikasi (Naik langsung di bawah Header) */}
               <div className="w-full overflow-hidden">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8 lg:gap-10">
@@ -935,6 +936,7 @@
             </div>
           </footer>
 
+          {}
           {/* Modal Rekap Pembayaran */}
           {showPaymentModal && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6">
@@ -1204,6 +1206,25 @@
                       <button type="button" onClick={() => setEditingApp({...editingApp, type: 'category'})} className={`py-4 md:py-5 rounded-xl md:rounded-3xl font-black text-[10px] md:text-[12px] uppercase tracking-widest border-2 md:border-4 transition-all ${editingApp.type === 'category' ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-md' : 'bg-slate-50 border-transparent text-slate-400'}`}>📂 Folder</button>
                     </div>
                   </div>
+
+                  {/* TOMBOL PENGATURAN STATUS PRO (EDIT MODAL) */}
+                  <div className="space-y-2 md:space-y-3">
+                    <label className="text-[9px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Status Badge</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const isCurrentlyPro = editingApp.isPro === true || String(editingApp.isPro).toUpperCase() === 'TRUE';
+                        setEditingApp({...editingApp, isPro: !isCurrentlyPro});
+                      }}
+                      className={`w-full py-4 md:py-5 rounded-xl md:rounded-3xl font-black text-[10px] md:text-[12px] uppercase tracking-widest border-2 md:border-4 transition-all flex items-center justify-center gap-2 ${
+                        (editingApp.isPro === true || String(editingApp.isPro).toUpperCase() === 'TRUE')
+                          ? 'border-amber-400 bg-amber-50 text-amber-600 shadow-md'
+                          : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-amber-300 hover:text-amber-500'
+                      }`}
+                    >
+                      ⭐ {(editingApp.isPro === true || String(editingApp.isPro).toUpperCase() === 'TRUE') ? 'Lencana PRO Aktif' : 'Tambahkan Lencana PRO'}
+                    </button>
+                  </div>
                   
                   {editingApp.type === 'app' && (
                     <div className="space-y-2 md:space-y-3 animate-in slide-in-from-top-2 duration-300">
@@ -1283,6 +1304,25 @@
                       <button type="button" onClick={() => setNewApp({...newApp, type: 'app'})} className={`py-4 md:py-5 rounded-xl md:rounded-3xl font-black text-[10px] md:text-[12px] uppercase tracking-widest border-2 md:border-4 transition-all ${newApp.type === 'app' ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-md' : 'bg-slate-50 border-transparent text-slate-400'}`}>🚀 Aplikasi</button>
                       <button type="button" onClick={() => setNewApp({...newApp, type: 'category'})} className={`py-4 md:py-5 rounded-xl md:rounded-3xl font-black text-[10px] md:text-[12px] uppercase tracking-widest border-2 md:border-4 transition-all ${newApp.type === 'category' ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-md' : 'bg-slate-50 border-transparent text-slate-400'}`}>📂 Folder</button>
                     </div>
+                  </div>
+
+                  {/* TOMBOL PENGATURAN STATUS PRO (TAMBAH MODAL) */}
+                  <div className="space-y-2 md:space-y-3">
+                    <label className="text-[9px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Status Badge</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const isCurrentlyPro = newApp.isPro === true || String(newApp.isPro).toUpperCase() === 'TRUE';
+                        setNewApp({...newApp, isPro: !isCurrentlyPro});
+                      }}
+                      className={`w-full py-4 md:py-5 rounded-xl md:rounded-3xl font-black text-[10px] md:text-[12px] uppercase tracking-widest border-2 md:border-4 transition-all flex items-center justify-center gap-2 ${
+                        (newApp.isPro === true || String(newApp.isPro).toUpperCase() === 'TRUE')
+                          ? 'border-amber-400 bg-amber-50 text-amber-600 shadow-md'
+                          : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-amber-300 hover:text-amber-500'
+                      }`}
+                    >
+                      ⭐ {(newApp.isPro === true || String(newApp.isPro).toUpperCase() === 'TRUE') ? 'Lencana PRO Aktif' : 'Tambahkan Lencana PRO'}
+                    </button>
                   </div>
                   
                   {newApp.type === 'app' && (
