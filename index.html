@@ -223,7 +223,6 @@
         }
       }, [notification]);
 
-      // Modifikasi: Fetch data Apps dan Payments bersamaan agar Tagihan siap ditampilkan di beranda
       const fetchFreshData = async () => {
         setIsLoading(true);
         setIsFadingOut(false);
@@ -231,17 +230,16 @@
         try {
           const [appsData, paymentsData] = await Promise.all([
             runGoogleScript('getApps'),
-            runGoogleScript('getPayments').catch(() => []) // Jangan sampai error payment memblokir apps
+            runGoogleScript('getPayments').catch(() => []) 
           ]);
           setApps(appsData || []);
           setPayments(paymentsData || []);
           
-          // Memicu animasi transisi menghilang secara halus (fade-out)
           setIsFadingOut(true);
           setTimeout(() => {
             setIsLoading(false);
             setIsFadingOut(false);
-          }, 800); // Menyesuaikan durasi transisi opacity dari CSS
+          }, 800); 
         } catch (err) {
           setLoadError(err.message);
           setIsLoading(false);
@@ -540,10 +538,8 @@
 
       const rootAppsForPayment = apps.filter(a => !a.parentId || a.parentId === "" || String(a.parentId).trim() === "null");
       
-      // Mengambil aplikasi-aplikasi yang sudah dikonfigurasi daftar member pembayarannya
       const appsWithPayments = rootAppsForPayment.filter(app => payments.some(p => p.appId === app.id));
 
-      // Menghitung Pendapatan
       let grandTotalMonthly = 0;
       let grandTotalYearly = 0;
 
@@ -753,7 +749,6 @@
               )}
 
               {}
-              {/* Area Grid Direktori & Aplikasi (Naik langsung di bawah Header) */}
               <div className="w-full overflow-hidden">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8 lg:gap-10">
                   {currentFolderId && (
@@ -768,55 +763,63 @@
                     </div>
                   )}
 
-                  {filteredApps.map((item, index) => (
-                    <div key={item.id} className="relative group animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: `${index * 80}ms` }}>
-                      <div 
-                        onClick={() => handleItemClick(item)}
-                        className={`glass-card relative h-full flex flex-col items-center justify-center p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.1)] cursor-pointer hover:-translate-y-2 hover:bg-white/90 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] ${item.type === 'category' ? 'hover:border-orange-300' : 'hover:border-blue-300'}`}
-                      >
-                        {/* BADGE PRO */}
-                        {(item.isPro === true || String(item.isPro).toUpperCase() === 'TRUE') && (
-                          <div className="absolute top-0 right-0 md:-translate-y-2 md:translate-x-2 bg-gradient-to-br from-amber-300 to-yellow-600 text-white px-3 py-1.5 md:py-2 rounded-bl-2xl rounded-tr-[2rem] md:rounded-tr-[3rem] shadow-[0_5px_15px_rgba(217,119,6,0.4)] border border-yellow-200 z-10 flex items-center gap-1 animate-in zoom-in duration-300">
-                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest drop-shadow-md">PRO</span>
-                            <span className="text-xs drop-shadow-md">⭐</span>
+                  {filteredApps.map((item, index) => {
+                    const isProApp = item.isPro === true || String(item.isPro).toUpperCase() === 'TRUE';
+                    return (
+                      <div key={item.id} className="relative group animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: `${index * 80}ms` }}>
+                        <div 
+                          onClick={() => handleItemClick(item)}
+                          className={`glass-card relative h-full flex flex-col items-center justify-center p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] backdrop-blur-2xl cursor-pointer hover:-translate-y-2 transition-all duration-300
+                            ${isProApp
+                              ? 'bg-gradient-to-br from-amber-200/20 to-yellow-500/20 border border-yellow-300/60 shadow-[0_0_20px_rgba(251,191,36,0.4),inset_0_0_15px_rgba(251,191,36,0.1)] hover:shadow-[0_0_40px_rgba(251,191,36,0.8),inset_0_0_20px_rgba(251,191,36,0.2)] hover:border-yellow-400 hover:from-amber-200/30 hover:to-yellow-500/30'
+                              : `bg-white/40 border border-white/60 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.1)] hover:bg-white/90 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] ${item.type === 'category' ? 'hover:border-orange-300' : 'hover:border-blue-300'}`
+                            }
+                          `}
+                        >
+                          {/* BADGE PRO */}
+                          {isProApp && (
+                            <div className="absolute top-0 right-0 md:-translate-y-2 md:translate-x-2 bg-gradient-to-br from-amber-300 to-yellow-600 text-white px-3 py-1.5 md:py-2 rounded-bl-2xl rounded-tr-[2rem] md:rounded-tr-[3rem] shadow-[0_5px_15px_rgba(217,119,6,0.4)] border border-yellow-200 z-10 flex items-center gap-1 animate-in zoom-in duration-300">
+                              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest drop-shadow-md">PRO</span>
+                              <span className="text-xs drop-shadow-md">⭐</span>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col items-center text-center space-y-4 md:space-y-6 z-10">
+                            <div className={`px-4 md:px-5 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black tracking-widest uppercase border-2 ${item.type === 'category' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                              {item.type === 'category' ? 'Direktori' : 'Aplikasi'}
+                            </div>
+                            
+                            <h4 className={`font-black text-xl md:text-3xl tracking-tight uppercase leading-tight transition-all duration-500 ease-out transform px-2 ${isProApp ? 'text-slate-900 group-hover:scale-110 group-hover:text-yellow-500 group-hover:drop-shadow-[0_0_12px_rgba(234,179,8,0.6)]' : 'text-slate-900 group-hover:scale-110 group-hover:text-blue-600'}`}>
+                              {item.name || 'TANPA NAMA'}
+                            </h4>
+                            
+                            <p className="text-[10px] md:text-[11px] font-bold text-slate-500 uppercase tracking-widest opacity-70 group-hover:opacity-100 transition-opacity drop-shadow-sm">
+                              {item.type === 'category' ? 'Buka Direktori' : 'Buka Aplikasi'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {isAdmin && (
+                          <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-[70]">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); openEditModal(item); }} 
+                              className="bg-emerald-500 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl shadow-2xl border-2 md:border-4 border-slate-200 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all"
+                              title="Edit Data"
+                            >
+                              <Pencil size={18} />
+                            </button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); if(confirm(`Hapus ${item.name}?`)) deleteApp(item.id); }} 
+                              className="bg-rose-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl shadow-2xl border-2 md:border-4 border-slate-200 flex items-center justify-center hover:bg-rose-700 hover:scale-110 active:scale-95 transition-all"
+                              title="Hapus Data"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         )}
-
-                        <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
-                          <div className={`px-4 md:px-5 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black tracking-widest uppercase border-2 ${item.type === 'category' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                            {item.type === 'category' ? 'Direktori' : 'Aplikasi'}
-                          </div>
-                          
-                          <h4 className="font-black text-slate-900 text-xl md:text-3xl tracking-tight uppercase leading-tight group-hover:text-blue-900 transition-colors px-2">
-                            {item.name || 'TANPA NAMA'}
-                          </h4>
-                          
-                          <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
-                            {item.type === 'category' ? 'Buka Direktori' : 'Buka Aplikasi'}
-                          </p>
-                        </div>
                       </div>
-
-                      {isAdmin && (
-                        <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-[70]">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); openEditModal(item); }} 
-                            className="bg-emerald-500 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl shadow-2xl border-2 md:border-4 border-slate-200 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all"
-                            title="Edit Data"
-                          >
-                            <Pencil size={18} />
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); if(confirm(`Hapus ${item.name}?`)) deleteApp(item.id); }} 
-                            className="bg-rose-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl shadow-2xl border-2 md:border-4 border-slate-200 flex items-center justify-center hover:bg-rose-700 hover:scale-110 active:scale-95 transition-all"
-                            title="Hapus Data"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {filteredApps.length === 0 && (
@@ -831,6 +834,7 @@
               </div>
             </div>
 
+            {}
             {/* KOLOM KANAN: Widget Info Tagihan Tema Pink & Lonceng Berdenyut */}
             {!currentFolderId && (
               <aside className="w-full xl:w-[360px] 2xl:w-[400px] shrink-0 animate-in fade-in slide-in-from-right-4 duration-700 mt-0">
@@ -849,7 +853,6 @@
                     </div>
                   </div>
 
-                  {/* max-h-[350px] dan overflow-y-auto dihapus agar memanjang penuh */}
                   <div className="flex flex-col gap-6 pb-4">
                     {appsWithPayments.length === 0 ? (
                       <div className="text-center py-6">
@@ -900,6 +903,7 @@
 
           </main>
 
+          {}
           <footer className="bg-slate-200/80 backdrop-blur-lg border-t border-slate-300/40 py-10 md:py-16 px-4 md:px-8 xl:px-16 mt-auto">
             <div className="max-w-[1920px] mx-auto flex flex-col lg:flex-row justify-between items-center gap-10 lg:gap-12">
               <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left">
